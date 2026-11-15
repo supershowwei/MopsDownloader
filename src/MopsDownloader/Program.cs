@@ -75,15 +75,15 @@ namespace MopsDownloader
             Console.WriteLine();
             Console.WriteLine("參數：");
             Console.WriteLine("  股票代號  可用逗號分隔多檔，例如 2330,8436");
-            Console.WriteLine("  年度      民國年，例如 114");
+            Console.WriteLine("  年度      西元年，例如 2025 (查詢網站時自動轉為民國年，檔名使用西元年)");
             Console.WriteLine("  -l        (fin) 指定為最新年度，下載全部季別；未指定只下載第四季");
             Console.WriteLine("  -o        輸出資料夾，預設為目前目錄下的 downloads");
             Console.WriteLine("  -f        檔案已存在時覆寫 (預設略過)");
             Console.WriteLine();
             Console.WriteLine("範例：");
-            Console.WriteLine("  MopsDownloader fin 8436 115 -l");
-            Console.WriteLine("  MopsDownloader fin 2330 114");
-            Console.WriteLine("  MopsDownloader annual 1582 114 -o D:\\reports");
+            Console.WriteLine("  MopsDownloader fin 8436 2026 -l");
+            Console.WriteLine("  MopsDownloader fin 2330 2025");
+            Console.WriteLine("  MopsDownloader annual 1582 2025 -o D:\\reports");
         }
 
         private class Options
@@ -165,6 +165,12 @@ namespace MopsDownloader
                 if (!int.TryParse(positional[2], out year) || year <= 0)
                 {
                     throw new ArgumentException("年度格式錯誤：" + positional[2]);
+                }
+                // 年度一律為西元年，避免誤輸入民國年
+                if (year <= TwseDocClient.RocYearOffset)
+                {
+                    throw new ArgumentException(string.Format(
+                        "年度請使用西元年：{0} (若為民國年，西元年為 {1})", year, year + TwseDocClient.RocYearOffset));
                 }
                 opt.Year = year;
 

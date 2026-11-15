@@ -30,6 +30,9 @@ namespace MopsDownloader
             @"href\s*=\s*['""](/pdf/[^'""]+)['""]",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
+        /// <summary>民國年 = 西元年 - 1911</summary>
+        public const int RocYearOffset = 1911;
+
         private readonly HttpClient _http;
 
         /// <summary>每次請求之間的間隔，避免請求過於頻繁被網站阻擋</summary>
@@ -48,6 +51,14 @@ namespace MopsDownloader
             _http = new HttpClient(handler) { Timeout = TimeSpan.FromMinutes(5) };
             _http.DefaultRequestHeaders.UserAgent.ParseAdd(
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36");
+        }
+
+        /// <summary>
+        /// 西元年轉民國年 (網站查詢參數與資料年度欄位皆為民國年)
+        /// </summary>
+        public static int ToRocYear(int year)
+        {
+            return year - RocYearOffset;
         }
 
         /// <summary>

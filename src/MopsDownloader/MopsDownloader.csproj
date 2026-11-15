@@ -6,7 +6,7 @@
     <LangVersion>7.3</LangVersion>
     <RootNamespace>MopsDownloader</RootNamespace>
     <AssemblyName>MopsDownloader</AssemblyName>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
   </PropertyGroup>
 
   <!-- Release 發佈時不產生 pdb -->

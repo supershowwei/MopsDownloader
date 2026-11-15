@@ -28,7 +28,7 @@ namespace MopsDownloader
         /// 下載指定股票、年度的股東會年報
         /// </summary>
         /// <param name="coId">股票代號</param>
-        /// <param name="year">年報所屬民國年度 (網址會帶入 year + 1 查詢)</param>
+        /// <param name="year">年報所屬西元年度 (網址會帶入其民國年 + 1 查詢，檔名使用西元年)</param>
         /// <param name="outputDir">輸出資料夾</param>
         /// <param name="overwrite">檔案已存在時是否覆寫</param>
         /// <returns>是否成功下載 (或已存在)</returns>
@@ -37,12 +37,13 @@ namespace MopsDownloader
             Console.WriteLine("[年報] {0} {1} 年 查詢中...", coId, year);
 
             // 網址帶入的年度為股東會召開年度，其中的年報屬於前一年度，
-            // 因此要取得 year 年度的年報需查詢 year + 1
-            var entries = await _client.GetListAsync(coId, year + 1, "F");
+            // 因此要取得 year 年度的年報需查詢 year + 1 (網址與資料年度欄位皆為民國年)
+            var rocYear = TwseDocClient.ToRocYear(year);
+            var entries = await _client.GetListAsync(coId, rocYear + 1, "F");
 
             var candidates = entries
                 .Where(e => e.CoId == coId)
-                .Where(e => GetYear(e.DataYear) == year)
+                .Where(e => GetYear(e.DataYear) == rocYear)
                 .Where(e => !e.Description.Contains("英文"))
                 .ToList();
 
@@ -90,7 +91,7 @@ namespace MopsDownloader
         }
 
         /// <summary>
-        /// 由「114 年」取得年度，無法判斷時回傳 0
+        /// 由「114 年」取得民國年度，無法判斷時回傳 0
         /// </summary>
         private static int GetYear(string dataYear)
         {

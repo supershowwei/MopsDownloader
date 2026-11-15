@@ -31,7 +31,7 @@ namespace MopsDownloader
         /// 下載指定股票、年度的各季中文版合併財報
         /// </summary>
         /// <param name="coId">股票代號</param>
-        /// <param name="year">民國年度</param>
+        /// <param name="year">西元年度 (查詢網站時轉為民國年，檔名使用西元年)</param>
         /// <param name="outputDir">輸出資料夾</param>
         /// <param name="overwrite">檔案已存在時是否覆寫</param>
         /// <param name="isLatest">是否為最新年度：是則下載全部季別，否則只下載第四季</param>
@@ -40,7 +40,7 @@ namespace MopsDownloader
         {
             Console.WriteLine("[財報] {0} {1} 年 查詢中...", coId, year);
 
-            var entries = await _client.GetListAsync(coId, year, "A");
+            var entries = await _client.GetListAsync(coId, TwseDocClient.ToRocYear(year), "A");
 
             Console.WriteLine(isLatest
                 ? "  {0} 年為最新年度，下載全部季別"

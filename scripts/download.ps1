@@ -21,7 +21,7 @@ param(
 # ===== 設定 =====
 
 # MopsDownloader.exe 路徑 (相對路徑以本腳本所在目錄為準)
-$ExePath = 'D:\Lab\MopsDownloader\dist\1.0.1\MopsDownloader.exe'
+$ExePath = 'D:\Lab\MopsDownloader\dist\1.0.2\MopsDownloader.exe'
 
 # 檔案已存在時是否覆寫 ($true 覆寫 / $false 略過)
 $Force = $false
@@ -62,15 +62,11 @@ try {
     # 部分主控台環境不支援變更編碼，忽略
 }
 
-function ConvertTo-RocYear([int]$year) {
-    return $year - 1911
-}
-
 $failed = New-Object System.Collections.Generic.List[string]
 
+# exe 年度參數與輸出檔名皆為西元年 (查詢網站時由 exe 自行轉為民國年)
 function Invoke-Downloader([string]$command, [int]$year, [switch]$Latest) {
-    $roc = ConvertTo-RocYear $year
-    $exeArgs = @($command, $idArg, $roc, '-o', $OutputDir)
+    $exeArgs = @($command, $idArg, $year, '-o', $OutputDir)
     if ($Latest) {
         $exeArgs += '-l'
     }
@@ -80,7 +76,7 @@ function Invoke-Downloader([string]$command, [int]$year, [switch]$Latest) {
 
     & $ExePath $exeArgs
     if ($LASTEXITCODE -ne 0) {
-        $failed.Add(("{0} {1} (民國 {2})" -f $command, $year, $roc))
+        $failed.Add(("{0} {1}" -f $command, $year))
     }
 }
 
