@@ -8,6 +8,7 @@ namespace MopsDownloader
 {
     /// <summary>
     /// 下載財務報告書 (mtype=A)，只下載中文版合併財報
+    /// 最新年度下載全部季別，非最新年度只下載第四季
     /// </summary>
     public class FinancialReportDownloader
     {
@@ -33,18 +34,24 @@ namespace MopsDownloader
         /// <param name="year">民國年度</param>
         /// <param name="outputDir">輸出資料夾</param>
         /// <param name="overwrite">檔案已存在時是否覆寫</param>
+        /// <param name="isLatest">是否為最新年度：是則下載全部季別，否則只下載第四季</param>
         /// <returns>成功下載 (或已存在) 的檔案數</returns>
-        public async Task<int> DownloadAsync(string coId, int year, string outputDir, bool overwrite)
+        public async Task<int> DownloadAsync(string coId, int year, string outputDir, bool overwrite, bool isLatest)
         {
             Console.WriteLine("[財報] {0} {1} 年 查詢中...", coId, year);
 
             var entries = await _client.GetListAsync(coId, year, "A");
+
+            Console.WriteLine(isLatest
+                ? "  {0} 年為最新年度，下載全部季別"
+                : "  {0} 年非最新年度，只下載第四季", year);
 
             var targets = entries
                 .Where(e => e.CoId == coId)
                 .Where(IsChineseConsolidated)
                 .Select(e => new { Entry = e, Quarter = GetQuarter(e.DataYear) })
                 .Where(x => x.Quarter > 0)
+                .Where(x => isLatest || x.Quarter == 4)
                 // 同一季若有多筆，取最後上傳者
                 .GroupBy(x => x.Quarter)
                 .Select(g => g.OrderBy(x => x.Entry.UploadDate, StringComparer.Ordinal).Last())
@@ -53,7 +60,9 @@ namespace MopsDownloader
 
             if (targets.Count == 0)
             {
-                Console.WriteLine("[財報] {0} {1} 年 查無中文版合併財報", coId, year);
+                Console.WriteLine(isLatest
+                    ? "[財報] {0} {1} 年 查無中文版合併財報"
+                    : "[財報] {0} {1} 年 查無第四季中文版合併財報", coId, year);
                 return 0;
             }
 

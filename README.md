@@ -22,7 +22,7 @@ dotnet build src/MopsDownloader.sln -c Release
 ## 用法
 
 ```
-MopsDownloader fin    <股票代號> <年度> [-o 輸出資料夾] [-f]
+MopsDownloader fin    <股票代號> <年度> [-l] [-o 輸出資料夾] [-f]
 MopsDownloader annual <股票代號> <年度> [-o 輸出資料夾] [-f]
 ```
 
@@ -32,6 +32,8 @@ MopsDownloader annual <股票代號> <年度> [-o 輸出資料夾] [-f]
 | `annual` | 股東會年報，F11 (股東會後修訂本) 優先，無則 F04 (尚未適用永續揭露準則) | `代號_年度F11` 或 `代號_年度F04` |
 
 - 年度為民國年。`annual` 的年度是「年報所屬年度」，程式會自動以 `year + 1` 查詢網站。
+- `fin` 加上 `-l` (`--latest`) 表示該年度為最新年度，下載全部季別；
+  未加則視為非最新年度，只下載第四季 (`代號_年度Y`)。
 - 股票代號可用逗號分隔多檔，例如 `2330,8436`。
 - `-o` 預設為目前目錄下的 `downloads`；`-f` 表示檔案已存在時覆寫 (預設略過)。
 - 網站回應「查詢過量」時會自動等待後重試。
@@ -40,6 +42,7 @@ MopsDownloader annual <股票代號> <年度> [-o 輸出資料夾] [-f]
 ## 範例
 
 ```bash
-MopsDownloader fin 8436 115
+MopsDownloader fin 8436 115 -l
+MopsDownloader fin 2330 114
 MopsDownloader annual 1582 113 -o D:\reports
 ```

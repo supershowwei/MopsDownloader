@@ -42,7 +42,7 @@ namespace MopsDownloader
                         if (opt.Command == "fin")
                         {
                             var downloader = new FinancialReportDownloader(client);
-                            var n = await downloader.DownloadAsync(coId, opt.Year, opt.OutputDir, opt.Overwrite);
+                            var n = await downloader.DownloadAsync(coId, opt.Year, opt.OutputDir, opt.Overwrite, opt.IsLatest);
                             allOk &= n > 0;
                         }
                         else
@@ -65,21 +65,24 @@ namespace MopsDownloader
         private static void PrintUsage()
         {
             Console.WriteLine("用法：");
-            Console.WriteLine("  MopsDownloader fin    <股票代號> <年度> [-o 輸出資料夾] [-f]");
+            Console.WriteLine("  MopsDownloader fin    <股票代號> <年度> [-l] [-o 輸出資料夾] [-f]");
             Console.WriteLine("  MopsDownloader annual <股票代號> <年度> [-o 輸出資料夾] [-f]");
             Console.WriteLine();
             Console.WriteLine("指令：");
             Console.WriteLine("  fin      下載財務報告書 (中文版合併財報)，檔名：代號_年度Q1/Q2/Q3/Y");
+            Console.WriteLine("           加 -l 下載全部季別，未加只下載第四季");
             Console.WriteLine("  annual   下載股東會年報 (F11 優先，否則 F04)，檔名：代號_年度F11/F04");
             Console.WriteLine();
             Console.WriteLine("參數：");
             Console.WriteLine("  股票代號  可用逗號分隔多檔，例如 2330,8436");
             Console.WriteLine("  年度      民國年，例如 114");
+            Console.WriteLine("  -l        (fin) 指定為最新年度，下載全部季別；未指定只下載第四季");
             Console.WriteLine("  -o        輸出資料夾，預設為目前目錄下的 downloads");
             Console.WriteLine("  -f        檔案已存在時覆寫 (預設略過)");
             Console.WriteLine();
             Console.WriteLine("範例：");
-            Console.WriteLine("  MopsDownloader fin 8436 115");
+            Console.WriteLine("  MopsDownloader fin 8436 115 -l");
+            Console.WriteLine("  MopsDownloader fin 2330 114");
             Console.WriteLine("  MopsDownloader annual 1582 114 -o D:\\reports");
         }
 
@@ -90,6 +93,7 @@ namespace MopsDownloader
             public int Year { get; private set; }
             public string OutputDir { get; private set; }
             public bool Overwrite { get; private set; }
+            public bool IsLatest { get; private set; }
 
             /// <summary>
             /// 解析命令列參數，參數不足時回傳 null
@@ -115,6 +119,10 @@ namespace MopsDownloader
                         case "-f":
                         case "--force":
                             opt.Overwrite = true;
+                            break;
+                        case "-l":
+                        case "--latest":
+                            opt.IsLatest = true;
                             break;
                         case "-h":
                         case "--help":
